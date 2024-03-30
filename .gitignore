@@ -1,0 +1,10 @@
+/*
+
+!/.gitignore
+!/pom.xml
+!/README.md
+
+!/src
+!/src/**
+!/src/main/**
+!/src/test/**
