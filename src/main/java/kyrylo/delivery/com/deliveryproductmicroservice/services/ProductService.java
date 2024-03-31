@@ -41,11 +41,12 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+    public Product getProductById(String id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
     }
 
-    public Product updateProduct(Long id, RequestProduct productDetails) {
+    public Product updateProduct(String id, RequestProduct productDetails) {
         Product product = getProductById(id);
 
         product.setName(productDetails.name());
@@ -59,7 +60,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public boolean deleteProduct(Long id) {
+    public boolean deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product not found with id: " + id);
         }

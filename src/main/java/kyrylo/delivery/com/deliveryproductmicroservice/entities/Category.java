@@ -1,20 +1,19 @@
 package kyrylo.delivery.com.deliveryproductmicroservice.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
+@Document(collection = "categories")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long categoryId;
+    private String categoryId;
 
-    @Column(nullable = false, unique = true)
     private String name;
 }

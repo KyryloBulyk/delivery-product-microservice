@@ -26,18 +26,18 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Category> getCategoryById(Long id) {
+    public Optional<Category> getCategoryById(String id) {
         return categoryRepository.findById(id);
     }
 
-    public Optional<Category> updateCategory(Long id, Category categoryDetails) {
+    public Optional<Category> updateCategory(String id, Category categoryDetails) {
         return getCategoryById(id).map(category -> {
             category.setName(categoryDetails.getName());
             return categoryRepository.save(category);
         });
     }
 
-    public void deleteCategory(Long id) {
+    public void deleteCategory(String id) {
         categoryRepository.deleteById(id);
     }
 
