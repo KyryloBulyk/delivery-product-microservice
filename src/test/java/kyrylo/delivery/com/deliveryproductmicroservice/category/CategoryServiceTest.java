@@ -1,6 +1,7 @@
 package kyrylo.delivery.com.deliveryproductmicroservice.category;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Category;
+import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.categoryExceptions.CategoryNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.CategoryRepository;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ class CategoryServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        category = new Category(1L, "Electronics");
+        category = new Category("1", "Electronics");
     }
 
     @Test
@@ -50,9 +51,15 @@ class CategoryServiceTest {
     @Test
     void getCategoryByIdTest() {
         when(categoryRepository.findById(category.getCategoryId())).thenReturn(Optional.of(category));
-        Optional<Category> foundCategory = categoryService.getCategoryById(category.getCategoryId());
-        assertTrue(foundCategory.isPresent());
-        assertEquals(category.getName(), foundCategory.get().getName());
+        Category foundCategory = categoryService.getCategoryById(category.getCategoryId());
+        assertNotNull(foundCategory);
+        assertEquals(category.getName(), foundCategory.getName());
+    }
+
+    @Test
+    void getCategoryByIdNotFoundTest() {
+        when(categoryRepository.findById("2")).thenReturn(Optional.empty());
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategoryById("2"));
     }
 
     @Test
@@ -61,17 +68,24 @@ class CategoryServiceTest {
         when(categoryRepository.save(any(Category.class))).thenReturn(category);
 
         Category updatedCategory = new Category(category.getCategoryId(), "Updated Electronics");
-        Optional<Category> result = categoryService.updateCategory(category.getCategoryId(), updatedCategory);
+        Category result = categoryService.updateCategory(category.getCategoryId(), updatedCategory);
 
-        assertTrue(result.isPresent());
-        assertEquals(updatedCategory.getName(), result.get().getName());
+        assertNotNull(result);
+        assertEquals(updatedCategory.getName(), result.getName());
     }
 
     @Test
     void deleteCategoryTest() {
+        when(categoryRepository.existsById(category.getCategoryId())).thenReturn(true);
         doNothing().when(categoryRepository).deleteById(category.getCategoryId());
         categoryService.deleteCategory(category.getCategoryId());
         verify(categoryRepository, times(1)).deleteById(category.getCategoryId());
+    }
+
+    @Test
+    void deleteCategoryNotFoundTest() {
+        when(categoryRepository.existsById("2")).thenReturn(false);
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.deleteCategory("2"));
     }
 
     @Test

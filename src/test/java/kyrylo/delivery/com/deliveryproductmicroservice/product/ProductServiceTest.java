@@ -7,8 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import kyrylo.delivery.com.deliveryproductmicroservice.dto.RequestProduct;
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Category;
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Product;
-import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.categoryExceptions.CategoryNotFoundException;
-import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.productExceptions.ProductNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.ProductRepository;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.CategoryService;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.ProductService;
@@ -40,8 +38,8 @@ class ProductServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        category = new Category(1L, "Electronics");
-        product = new Product(1L, "Laptop", 999.99, category);
+        category = new Category("1", "Electronics");
+        product = new Product("1", "Laptop", 999.99, category);
         requestProduct = new RequestProduct("Laptop", 999.99, "Electronics");
     }
 
@@ -70,7 +68,8 @@ class ProductServiceTest {
     void createProductWithNonExistentCategoryTest() {
         when(categoryService.getCategoryByName(anyString())).thenReturn(null);
 
-        assertThrows(CategoryNotFoundException.class, () -> productService.createProduct(requestProduct));
+        Exception exception = assertThrows(RuntimeException.class, () -> productService.createProduct(requestProduct));
+        assertEquals("Category not found with name: " + requestProduct.categoryName(), exception.getMessage());
     }
 
     @Test
@@ -83,8 +82,9 @@ class ProductServiceTest {
 
     @Test
     void getProductByNonExistentIdTest() {
-        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(ProductNotFoundException.class, () -> productService.getProductById(2L));
+        when(productRepository.findById(anyString())).thenReturn(Optional.empty());
+        Exception exception = assertThrows(RuntimeException.class, () -> productService.getProductById("2"));
+        assertEquals("Product not found with id: 2", exception.getMessage());
     }
 
     @Test
@@ -104,15 +104,14 @@ class ProductServiceTest {
         when(productRepository.existsById(product.getId())).thenReturn(true);
         doNothing().when(productRepository).deleteById(product.getId());
 
-        boolean deleted = productService.deleteProduct(product.getId());
-
-        assertTrue(deleted);
+        productService.deleteProduct(product.getId());
         verify(productRepository, times(1)).deleteById(product.getId());
     }
 
     @Test
     void deleteNonExistentProductTest() {
-        when(productRepository.existsById(anyLong())).thenReturn(false);
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(2L));
+        when(productRepository.existsById(anyString())).thenReturn(false);
+        Exception exception = assertThrows(RuntimeException.class, () -> productService.deleteProduct("2"));
+        assertEquals("Product not found with id: 2", exception.getMessage());
     }
 }
