@@ -28,14 +28,14 @@ public class ProductService {
     }
 
     public Product createProduct(RequestProduct requestProduct) {
+        Product product = new Product();
+        product.setName(requestProduct.name());
+        product.setPrice(requestProduct.price());
+
         Category category = categoryService.getCategoryByName(requestProduct.categoryName());
         if (category == null) {
             throw new CategoryNotFoundException("Category not found with name: " + requestProduct.categoryName());
         }
-
-        Product product = new Product();
-        product.setName(requestProduct.name());
-        product.setPrice(requestProduct.price());
         product.setCategory(category);
 
         return productRepository.save(product);
@@ -48,9 +48,9 @@ public class ProductService {
 
     public Product updateProduct(String id, RequestProduct productDetails) {
         Product product = getProductById(id);
-
         product.setName(productDetails.name());
         product.setPrice(productDetails.price());
+
         Category category = categoryService.getCategoryByName(productDetails.categoryName());
         if (category == null) {
             throw new CategoryNotFoundException("Category not found with name: " + productDetails.categoryName());
@@ -60,11 +60,10 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public boolean deleteProduct(String id) {
+    public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
-            throw new ProductNotFoundException("Product not found with id: " + id);
+            throw new RuntimeException("Product not found with id: " + id);
         }
         productRepository.deleteById(id);
-        return true;
     }
 }
