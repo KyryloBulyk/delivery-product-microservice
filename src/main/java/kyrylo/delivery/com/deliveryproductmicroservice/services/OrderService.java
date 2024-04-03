@@ -1,18 +1,22 @@
 package kyrylo.delivery.com.deliveryproductmicroservice.services;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Order;
+import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.OrderNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
 
-    private OrderRepository orderRepository;
+    private static final Logger logger = LogManager.getLogger(OrderService.class);
+
+    private final OrderRepository orderRepository;
 
     @Autowired
     public OrderService(OrderRepository orderRepository) {
@@ -20,32 +24,48 @@ public class OrderService {
     }
 
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
+        logger.info("Fetching all orders. Total orders found: {}", orders.size());
+        return orders;
     }
 
-    public Optional<Order> getOrderById(String id) {
-        return orderRepository.findById(id);
+    public Order getOrderById(String id) {
+        logger.info("Fetching order by id: {}", id);
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
     }
 
     public Order createOrder(Order order) {
+        logger.info("Creating new order");
         order.setOrderDate(LocalDateTime.now());
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        logger.info("Order created successfully with id: {}", savedOrder.getId());
+        return savedOrder;
     }
 
     public Order updateOrder(String id, Order orderDetails) {
+        logger.info("Updating order with id: {}", id);
         return orderRepository.findById(id)
                 .map(order -> {
                     order.setUserId(orderDetails.getUserId());
                     order.setProductIds(orderDetails.getProductIds());
                     order.setTotalCost(orderDetails.getTotalCost());
-                    return orderRepository.save(order);
-                }).orElseGet(() -> {
-                    orderDetails.setId(id);
-                    return orderRepository.save(orderDetails);
+                    Order updatedOrder = orderRepository.save(order);
+                    logger.info("Order updated successfully with id: {}", updatedOrder.getId());
+                    return updatedOrder;
+                }).orElseThrow(() -> {
+                    logger.error("Order update failed. Order not found with id: {}", id);
+                    return new OrderNotFoundException("Order not found with id: " + id);
                 });
     }
 
     public void deleteOrder(String id) {
+        logger.info("Deleting order with id: {}", id);
+        if (!orderRepository.existsById(id)) {
+            logger.error("Order deletion failed. Order not found with id: {}", id);
+            throw new OrderNotFoundException("Order not found with id: " + id);
+        }
         orderRepository.deleteById(id);
+        logger.info("Order deleted successfully with id: {}", id);
     }
 }
