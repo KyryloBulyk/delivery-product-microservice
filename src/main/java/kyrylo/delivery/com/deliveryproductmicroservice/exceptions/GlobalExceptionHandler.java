@@ -1,5 +1,6 @@
 package kyrylo.delivery.com.deliveryproductmicroservice.exceptions;
 
+import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.categoryExceptions.CategoryAlreadyExistException;
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.categoryExceptions.CategoryNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.productExceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -23,5 +24,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CreationFailedException.class)
     public ResponseEntity<String> handleCreationFailedException(CreationFailedException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(CategoryAlreadyExistException.class)
+    public ResponseEntity<String> handleCategoryAlreadyExistException(CategoryAlreadyExistException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }
