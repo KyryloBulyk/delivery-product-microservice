@@ -6,6 +6,7 @@ import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderReposit
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +18,12 @@ public class OrderService {
     private static final Logger logger = LogManager.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
+    private final UserClient userClient;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, UserClient userClient) {
         this.orderRepository = orderRepository;
+        this.userClient = userClient;
     }
 
     public List<Order> getAllOrders() {
@@ -36,7 +39,14 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
-        logger.info("Creating new order");
+        logger.info("Creating new order for user ID: {}", order.getUserId());
+
+        ResponseEntity<Boolean> userExistsResponse = userClient.existsById(order.getUserId());
+        if (Boolean.FALSE.equals(userExistsResponse.getBody())) {
+            logger.error("User with ID: {} does not exist. Order creation failed.", order.getUserId());
+            throw new IllegalStateException("Cannot create order. User does not exist.");
+        }
+
         order.setOrderDate(LocalDateTime.now());
         Order savedOrder = orderRepository.save(order);
         logger.info("Order created successfully with id: {}", savedOrder.getId());
