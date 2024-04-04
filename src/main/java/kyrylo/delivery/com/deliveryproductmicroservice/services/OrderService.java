@@ -57,7 +57,6 @@ public class OrderService {
         logger.info("Updating order with id: {}", id);
         return orderRepository.findById(id)
                 .map(order -> {
-                    order.setUserId(orderDetails.getUserId());
                     order.setProductIds(orderDetails.getProductIds());
                     order.setTotalCost(orderDetails.getTotalCost());
                     Order updatedOrder = orderRepository.save(order);

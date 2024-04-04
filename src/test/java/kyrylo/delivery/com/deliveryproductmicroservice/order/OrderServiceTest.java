@@ -7,11 +7,13 @@ import kyrylo.delivery.com.deliveryproductmicroservice.entities.Order;
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.OrderNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderRepository;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.OrderService;
+import kyrylo.delivery.com.deliveryproductmicroservice.services.UserClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -24,6 +26,9 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private UserClient userClient;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -33,6 +38,7 @@ class OrderServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         order = new Order("1", 1L, Set.of("product1", "product2"), LocalDateTime.now(), 100.0);
+        when(userClient.existsById(anyLong())).thenReturn(ResponseEntity.ok(true));
     }
 
     @Test
@@ -67,6 +73,12 @@ class OrderServiceTest {
         assertNotNull(newOrder);
         assertEquals(order.getTotalCost(), newOrder.getTotalCost());
         verify(orderRepository).save(any(Order.class));
+    }
+
+    @Test
+    void createOrderWithNonExistingUserTest() {
+        when(userClient.existsById(anyLong())).thenReturn(ResponseEntity.ok(false));
+        assertThrows(IllegalStateException.class, () -> orderService.createOrder(order));
     }
 
     @Test
