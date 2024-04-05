@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Document(collection = "orders")
@@ -20,16 +21,18 @@ public class Order {
 
     @Id
     private String id;
+
     @NotNull(message = "User ID cannot be null")
     private Long userId;
 
-    @NotNull(message = "Product names cannot be null")
-    @Size(min = 1, message = "There must be at least one product name")
-    private Set<String> productNames;
+    @NotNull(message = "Order items cannot be null")
+    @Size(min = 1, message = "There must be at least one order item")
+    private Set<OrderItem> orderItems = new HashSet<>();
 
     @NotNull(message = "Order date cannot be null")
     private LocalDateTime orderDate;
 
-    @Min(value = 1, message = "Total cost must be greater than 0")
-    private double totalCost;
+    public double getTotalCost() {
+        return orderItems.stream().mapToDouble(item -> item.getPrice() * item.getQuantity()).sum();
+    }
 }

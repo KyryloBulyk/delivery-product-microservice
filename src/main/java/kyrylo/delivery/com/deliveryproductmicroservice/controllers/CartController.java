@@ -1,9 +1,11 @@
 package kyrylo.delivery.com.deliveryproductmicroservice.controllers;
 
+import jakarta.ws.rs.Path;
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Cart;
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.CartItem;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,16 +29,18 @@ public class CartController {
     }
 
     @PostMapping("/create/{userId}")
-    public ResponseEntity<Cart> createCartForUser(@PathVariable Long userId) {
+    public ResponseEntity<Void> createCartForUser(@PathVariable Long userId) {
         Cart existingCart = cartService.getCartByUserId(userId);
-        if (existingCart.getId() != null) {
-            return ResponseEntity.ok(existingCart);
+        if (existingCart != null && existingCart.getId() != null) {
+            return ResponseEntity.ok().build();
         }
 
-        Cart newCart = new Cart(null, userId, new HashMap<>());
-        Cart savedCart = cartService.createCart(newCart);
-        return ResponseEntity.ok(savedCart);
+        Cart newCart = new Cart();
+        newCart.setUserId(userId);
+        cartService.createCart(newCart);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
 
     @PostMapping("/{userId}/items")
     public ResponseEntity<Cart> addItemToCart(@PathVariable Long userId, @RequestBody CartItem item) {
