@@ -95,4 +95,9 @@ public class ProductService {
         productRepository.deleteById(id);
         logger.info("Product deleted successfully with id: {}", id);
     }
+
+    public void existByName(String productName) {
+        productRepository.findByName(productName)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with name " + productName));
+    }
 }
