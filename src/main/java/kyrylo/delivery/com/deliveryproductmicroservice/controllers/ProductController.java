@@ -1,4 +1,4 @@
-package kyrylo.delivery.com.deliveryproductmicroservice.contollers;
+package kyrylo.delivery.com.deliveryproductmicroservice.controllers;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.dto.RequestProduct;
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Product;

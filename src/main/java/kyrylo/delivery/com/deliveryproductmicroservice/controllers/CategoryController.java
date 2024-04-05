@@ -1,4 +1,4 @@
-package kyrylo.delivery.com.deliveryproductmicroservice.contollers;
+package kyrylo.delivery.com.deliveryproductmicroservice.controllers;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Category;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.CategoryService;
