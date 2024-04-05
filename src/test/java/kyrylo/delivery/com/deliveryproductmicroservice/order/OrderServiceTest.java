@@ -8,6 +8,7 @@ import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.UserNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderRepository;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.OrderService;
+import kyrylo.delivery.com.deliveryproductmicroservice.services.ProductService;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.UserClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class OrderServiceTest {
     @Mock
     private UserClient userClient;
 
+    @Mock
+    private ProductService productService;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -40,6 +44,7 @@ class OrderServiceTest {
         MockitoAnnotations.openMocks(this);
         order = new Order("1", 1L, Set.of("product1", "product2"), LocalDateTime.now(), 100.0);
         when(userClient.existsById(anyLong())).thenReturn(ResponseEntity.ok(true));
+        doNothing().when(productService).existByName(anyString());
     }
 
     @Test
