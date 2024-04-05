@@ -2,6 +2,7 @@ package kyrylo.delivery.com.deliveryproductmicroservice.services;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Order;
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.OrderNotFoundException;
+import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.UserNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +45,7 @@ public class OrderService {
         ResponseEntity<Boolean> userExistsResponse = userClient.existsById(order.getUserId());
         if (Boolean.FALSE.equals(userExistsResponse.getBody())) {
             logger.error("User with ID: {} does not exist. Order creation failed.", order.getUserId());
-            throw new IllegalStateException("Cannot create order. User does not exist.");
+            throw new UserNotFoundException(order.getUserId());
         }
 
         order.setOrderDate(LocalDateTime.now());
