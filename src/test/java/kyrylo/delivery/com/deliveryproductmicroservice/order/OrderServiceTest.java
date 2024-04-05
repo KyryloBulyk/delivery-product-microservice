@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import kyrylo.delivery.com.deliveryproductmicroservice.entities.Order;
 import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.OrderNotFoundException;
+import kyrylo.delivery.com.deliveryproductmicroservice.exceptions.orderException.UserNotFoundException;
 import kyrylo.delivery.com.deliveryproductmicroservice.repositories.OrderRepository;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.OrderService;
 import kyrylo.delivery.com.deliveryproductmicroservice.services.UserClient;
@@ -78,7 +79,7 @@ class OrderServiceTest {
     @Test
     void createOrderWithNonExistingUserTest() {
         when(userClient.existsById(anyLong())).thenReturn(ResponseEntity.ok(false));
-        assertThrows(IllegalStateException.class, () -> orderService.createOrder(order));
+        assertThrows(UserNotFoundException.class, () -> orderService.createOrder(order));
     }
 
     @Test
